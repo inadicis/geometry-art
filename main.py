@@ -7,7 +7,7 @@ def main():
     window = turtle.Screen()
     pen = turtle.Turtle()
     pen.speed(0)
-    square = RegularPolygon(side_length=500, number_of_sides=3, first_point=turtle.Vec2D(-200, -200))
+    square = RegularPolygon(side_length=500, number_of_sides=5, first_point=turtle.Vec2D(-200, -200), flawed=True)
     draw_recursive_sub_polygons(pen, square, 100, 0.05)
     turtle.done()
 

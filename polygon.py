@@ -34,7 +34,8 @@ class RegularPolygon(Polygon):
                  side_length: float,
                  first_point: Vec2D = Vec2D(0, 0),
                  orientation_angle: float = 0.0,
-                 clockwise: bool = False):
+                 clockwise: bool = False,
+                 flawed: bool = False):
         """
 
         :param number_of_sides:
@@ -46,6 +47,8 @@ class RegularPolygon(Polygon):
         super().__init__()
         self.points.append(first_point)
         angle_delta = math.pi - ((number_of_sides - 2) * math.pi / number_of_sides)
+        if flawed:
+            angle_delta = (number_of_sides - 2) * math.pi / number_of_sides
         for i in range(number_of_sides - 1):
             x_delta = math.cos(orientation_angle) * side_length
             y_delta = math.sin(orientation_angle) * side_length
