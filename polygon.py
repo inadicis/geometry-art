@@ -25,7 +25,7 @@ class Polygon:
         return subp
 
     def next_point_index(self, index: int):
-        return index + 1 if index < len(self.points) else 0
+        return index + 1 if index < len(self.points) - 1 else 0
 
 
 class RegularPolygon(Polygon):
@@ -45,11 +45,12 @@ class RegularPolygon(Polygon):
         """
         super().__init__()
         self.points.append(first_point)
+        angle_delta = (number_of_sides - 2) * math.pi / number_of_sides
         for i in range(number_of_sides - 1):
             x_delta = math.cos(orientation_angle) * side_length
             y_delta = math.sin(orientation_angle) * side_length
-            self.points.append(turtle.Vec2D(first_point[0] + x_delta, first_point[1] + y_delta))
-            angle_delta = (number_of_sides - 2) * math.pi / number_of_sides
+            self.points.append(Vec2D(self.points[-1][0] + x_delta, self.points[-1][1] + y_delta))
+
             if clockwise:
                 angle_delta *= -1
             orientation_angle += angle_delta
