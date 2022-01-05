@@ -14,7 +14,7 @@ def draw_from_polygon(pen: Turtle, polygon: Polygon, fill: bool = True):
 
 
 def draw_recursive_sub_polygons(pen: Turtle, main_polygon: Polygon, n_iter: int, ratio: float = 0.5,
-                                mirror: bool = False):
+                                mirror: bool = False, fill: bool = False):
     """
 
     :param pen: a Turtle pen to be used
@@ -27,6 +27,16 @@ def draw_recursive_sub_polygons(pen: Turtle, main_polygon: Polygon, n_iter: int,
     current_pol = main_polygon
     if mirror:
         ratio = 1 - ratio
+    fill_color = (1.0, 1.0, 1.0)
+    if fill:
+        pen.pencolor(1.0, 1.0, 1.0)
+        pen.fillcolor(fill_color)
     for i in range(n_iter):
+        pen.begin_fill()
         draw_from_polygon(pen, current_pol)
+        pen.end_fill()
+        if fill:
+            fill_color = tuple([c * 0.99 for c in fill_color])
+            pen.fillcolor(fill_color)
+            print(fill_color)
         current_pol = current_pol.sub_polygon(ratio)
