@@ -45,7 +45,7 @@ class RegularPolygon(Polygon):
         """
         super().__init__()
         self.points.append(first_point)
-        angle_delta = (number_of_sides - 2) * math.pi / number_of_sides
+        angle_delta = math.pi - ((number_of_sides - 2) * math.pi / number_of_sides)
         for i in range(number_of_sides - 1):
             x_delta = math.cos(orientation_angle) * side_length
             y_delta = math.sin(orientation_angle) * side_length
