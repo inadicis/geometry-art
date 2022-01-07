@@ -16,7 +16,7 @@ class Polygon:
         for point in points:
             self.points.append(point)
 
-    def next_subpolygon(self, ratio: float) -> Polygon:
+    def next_subpolygon(self, ratio: float) -> 'Polygon':
         subp = Polygon()
         for index, point in enumerate(self.points):
             next_point = self.points[self.next_point_index(index)]

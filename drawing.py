@@ -1,7 +1,8 @@
-from turtle import Turtle
+from turtle import Turtle, Pen
 from typing import Callable
 
 from polygon import Polygon
+from interpolation import *
 
 
 def draw_from_polygon(pen: Turtle, polygon: Polygon, fill: bool = True):
@@ -47,7 +48,10 @@ def draw_recursive_sub_polygons(pen: Turtle, main_polygon: Polygon, n_iter: int,
 
 class Artist:
     def __init__(self, polygon: Polygon):
-        self.pen = Turtle()
+        self.pen = Pen()
+        self.pen.hideturtle()
+        self.pen.speed(0)
+        self.pen.getscreen().delay(0)
         self.polygons = {
             1.0: [polygon]
         }  # memoize for each ratio
@@ -64,42 +68,43 @@ class Artist:
         :param ratio: float
         :return: Polygon
         """
-        subpolygons = self.polygons.get(ratio, self.polygons[1.0].copy())
+        subpolygons = self.polygons.get(ratio)
+        if not subpolygons:
+            subpolygons = self.polygons[1.0].copy()
+            self.polygons[ratio] = subpolygons
         current_index = len(subpolygons) - 1
         if index <= current_index:
             return subpolygons[index]
-        for i in range(current_index, index - 1, step=1):
+        for i in range(current_index, index, 1):
             subpolygons.append(subpolygons[i].next_subpolygon(ratio))
-
         return subpolygons[index]
         # return subpolygons[-1]
 
-    def draw_polygon(self, polygon: Polygon, closed: bool = True):
+    def draw_polygon(self, polygon: Polygon, closed: bool = True, fill: bool = False):
         self.pen.penup()
         self.pen.goto(polygon.points[0])
         self.pen.pendown()
+        if fill:
+            self.pen.begin_fill()
         for point in polygon.points:
             self.pen.goto(point)
         if closed:
             self.pen.goto(polygon.points[0])
+        if fill:
+            self.pen.end_fill()
 
-    def draw_spiral(self, n_iter: int, ratio: float, fill_interpolation: Callable[[float], float], mirror: bool = False,
+    def draw_spiral(self, n_iter: int, ratio: float,
+                    fill_interpolation: Callable[[float], float] = zero,
+                    mirror: bool = False,
                     fill: bool = False):
-        """
-        :param n_iter:
-        :param ratio:
-        :param fill_interpolation:
-        :param mirror:
-        :param fill:
-        :return:
-        """
         if mirror:
             ratio = 1 - ratio
-        subpolygons = self.polygons.get(ratio, self.polygons[1.0].copy())
-        self.get_subpolygon(n_iter, ratio)  # memoize all required polygons
+        subp = self.get_subpolygon(n_iter, ratio)  # memoize all required polygons
+        subpolygons = self.polygons.get(ratio)
         for index, polygon in enumerate(subpolygons):
-            self.draw_polygon(polygon)
+            value = fill_interpolation(index / n_iter)
+            self.pen.fillcolor((value, value, value))
+            self.draw_polygon(polygon, fill=fill)
             if index > n_iter:
                 break
-        # TODO be able to give any custom interpolation function ([0:1] -> [0:1])
         # TODO be able to give a triple interpolation funciton ([0:1] -> [0:1]^3)

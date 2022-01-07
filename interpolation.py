@@ -20,8 +20,9 @@ def _crop(ratio: float, minimum: float = 0.0, maximum: float = 1.0) -> float:
     return ratio
 
 
-# def power(ratio: float, exponent: float) -> float:
-#     return _crop(ratio ** exponent)
+def zero(ratio: float) -> float:
+    return 0.0
+
 
 def _power(exponent: float) -> Callable[[float], float]:
     return lambda x: _crop(x ** exponent)
