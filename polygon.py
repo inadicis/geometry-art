@@ -12,11 +12,11 @@ class Polygon:
     def __init__(self, ):
         self.points = []  # Vec2D
 
-    def add_points(self, *points):
+    def add_points(self, *points: list[Vec2D]):
         for point in points:
             self.points.append(point)
 
-    def sub_polygon(self, ratio: float):
+    def next_subpolygon(self, ratio: float) -> Polygon:
         subp = Polygon()
         for index, point in enumerate(self.points):
             next_point = self.points[self.next_point_index(index)]
@@ -24,7 +24,7 @@ class Polygon:
             subp.add_points(new_point)
         return subp
 
-    def next_point_index(self, index: int):
+    def next_point_index(self, index: int) -> int:
         return index + 1 if index < len(self.points) - 1 else 0
 
 
