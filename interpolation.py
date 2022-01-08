@@ -41,7 +41,7 @@ def cube(ratio: float) -> float:
 
 
 def sinus(ratio: float) -> float:
-    return _crop(math.sin(ratio / math.pi))
+    return _crop(math.sin(2 * ratio / math.pi))
 
 
 def _gauss(mean: float = 0.5, sd: float = 0.3) -> Callable[[float], float]:
@@ -50,6 +50,10 @@ def _gauss(mean: float = 0.5, sd: float = 0.3) -> Callable[[float], float]:
 
 def gauss(ratio: float) -> float:
     return _gauss()(ratio)
+
+
+def gauss_heavy(ratio: float) -> float:
+    return _gauss(0.8, 0.4)(ratio)
 
 
 def _logistic_curve(midpoint: float = 0.5, steepness: float = 1.0, max_value: float = 1.0) -> Callable[[float], float]:

@@ -3,16 +3,22 @@ from turtle import Vec2D
 import math
 
 
+# class Point(Vec2D):
+#     def distance(self, other_point):
+#         vec = (other_point - self)
+#         return (vec[0] ** 2 + vec[1] ** 2) ** 0.5
+
+
 def linear_interpolation(a, b, ratio: float):
     return a * ratio + b * (1 - ratio)
 
 
 class Polygon:
 
-    def __init__(self, ):
-        self.points = []  # Vec2D
+    def __init__(self, *points: Vec2D):
+        self.points: list[Vec2D] = [p for p in points]
 
-    def add_points(self, *points: list[Vec2D]):
+    def add_points(self, *points: Vec2D):
         for point in points:
             self.points.append(point)
 
@@ -27,6 +33,15 @@ class Polygon:
     def next_point_index(self, index: int) -> int:
         return index + 1 if index < len(self.points) - 1 else 0
 
+    def side_lengths(self):
+        lengths = []
+        for index, current_point in enumerate(self.points):
+            next_point = self.points[self.next_point_index(index)]
+            vec = current_point - next_point
+            lengths.append((vec[0] ** 2 + vec[1] ** 2) ** 0.5)
+        return lengths
+        # return [p.distance(self.points[self.next_point_index(index)]) for index, p in enumerate(self.points)]
+
 
 class RegularPolygon(Polygon):
     def __init__(self,
@@ -40,7 +55,7 @@ class RegularPolygon(Polygon):
 
         :param number_of_sides:
         :param side_length:
-        :param first_point: vec2D,
+        :param first_point: Point,
         :param orientation_angle: the angle for the first side in radians. comparing to the vector (1,0)
         :param clockwise: bool, if turning clockwise each angle or not
         """

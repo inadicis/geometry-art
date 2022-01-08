@@ -1,3 +1,4 @@
+import random
 from turtle import Turtle, Pen
 from typing import Callable
 
@@ -55,21 +56,35 @@ class Artist:
     def draw_spiral(self, n_iter: int, ratio: float,
                     fill_interpolation: Callable[[float], float] = zero,
                     mirror: bool = False,
-                    fill: bool = False,
+                    fill_mode: int = 0,
                     invert_colors: bool = True):
         if mirror:
             ratio = 1 - ratio
         subp = self.get_subpolygon(n_iter, ratio)  # memoize all required polygons
         subpolygons = self.polygons.get(ratio)
         for index, polygon in enumerate(subpolygons):
-            value = fill_interpolation(index / n_iter)
+            match fill_mode:
+                case 1:
+                    fill_ratio = index / n_iter
+                case 2:
+                    # print(f'current_poly: {polygon.side_lengths()}')
+                    # print(f'first poly: {self.polygons[ratio][0].side_lengths()}')
+                    fill_ratio = 1.0 - (sum(polygon.side_lengths()) / len(polygon.side_lengths())) / (sum(
+                        self.polygons[ratio][0].side_lengths()) / len(self.polygons[ratio][0].side_lengths()))
+                    # print(fill_ratio)
+                case _:
+                    fill_ratio = random.randint(0, 1000) / 1000
+
+            value = fill_interpolation(fill_ratio)
             if invert_colors:
                 value = 1 - value
             self.pen.fillcolor((value, value, value))
             self.pen.pencolor(self.pen.fillcolor())
-            self.draw_polygon(polygon, fill=fill)
+            self.draw_polygon(polygon, fill=bool(fill_mode))
             if index > n_iter:
                 break
-        # TODO be able to give a triple interpolation funciton ([0:1] -> [0:1]^3)
+        # fill modi -> think of new ones
+        # TODO fix filling for ratios < 0 or > 1
+        # TODO be able to give a triple interpolation function ([0:1] -> [0:1]^3)
         # Todo be able to parametrise line color independly and realtive to fill color?
         # TODO make interpolation not dependant on n_iter, but on area of polygon? perimeter? radius?

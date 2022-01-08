@@ -1,14 +1,14 @@
 from drawing import Artist
-from polygon import Polygon, RegularPolygon
+from polygon import Polygon, RegularPolygon  # , Point
 import turtle
 from interpolation import *
 
 
 def main():
     window = turtle.Screen()
-    square = RegularPolygon(side_length=500, number_of_sides=5, first_point=turtle.Vec2D(-200, -200), flawed=False)
+    square = RegularPolygon(side_length=100, number_of_sides=5, first_point=turtle.Vec2D(-200, -200), flawed=True)
     art = Artist(square)
-    art.draw_spiral(100, 0.05, fill=True, fill_interpolation=cubic)
+    art.draw_spiral(200, -0.1, fill_mode=0, fill_interpolation=gauss_heavy, invert_colors=True)
     turtle.done()
 
 
