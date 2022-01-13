@@ -108,27 +108,61 @@ class Pavement:
             current_spiral_orientation = not current_spiral_orientation if inverse_every_row else current_spiral_orientation
 
 
-# TODO abstraction layer RegularPavement,
-#  with rotation when changing col, rotation when changing row, offset when changing row
-#  and offset when changing col
-#  e.g.: Square: rot_col = 0.0, rot_row = 0.0, offset_col = side_length, offset_row = side_length
-#      Triangle: rot_col = 0.0, rot_row = pi , offset_col = side_length, offset_row = h
+# TODO implement a Polygon "builder", that has no real points, is meant to be the template for any "real" polygon.
+#   could be used instead of giving here a type as int (which restricts our possibilities)
 
-class TrianglePavement(Pavement):
-    def __init__(self, rows: int, columns: int, side_length: int, begin_point: Vec2D = Vec2D(0, 0)):
-        super(TrianglePavement, self).__init__()
-        current_pos = begin_point
-        turns_right = False
-        h = (side_length ** 2 - (side_length / 2) ** 2) ** 0.5
-        for row_nr in range(rows):
+
+# TODO implement irregular /procedural pavements with "wang" tiles?... look in CG2 vorlesung
+
+# TODO change offset structure, to include "rules", like every second column, the offset is positive/negative
+#   e.g. offset_col = [{"type": "angle", "operation": "add/set", "value": X, "modulo": 2}]
+#   or a tile could know an offset to the next one, or event just start position and angle. Not even of next one, of
+#   self would be enough.
+
+class RegularPavement(Pavement):
+    def __init__(self, polygon_type: int, polygon_side_length: int,
+                 dimensions: (int, int),
+                 offsets: ((Vec2D, float), (Vec2D, float)),
+                 begin: (Vec2D, float) = (Vec2D(0, 0), 0.0)):
+        """
+
+        :param polygon_type: number of sides for the tiles' polygon (either 3,4 or 6 for a filling pavement)
+        :param offsets: tuple matrix with 4 elements:
+        ((column_change_offset, column_change_rotation), (row_change_offset, row_change_rotation))
+        :param polygon_side_length: int
+        :param dimensions: tuple, specifying amount of rows and amount of columns
+        :param begin: tuple, start point and orientation
+        """
+        super(RegularPavement, self).__init__()
+        current_pos = begin[0]
+        current_orientation_angle = begin[1]
+
+        last_row_start_pos = current_pos
+        last_row_start_angle = current_orientation_angle
+
+        for row_nr in range(dimensions[0]):
             self.tiles_matrix.append([])
-            for col_nr in range(columns):
-                pol = RegularPolygon(side_length=side_length, number_of_sides=3, first_point=current_pos,
-                                     orientation_angle=0.0, clockwise=turns_right)
+            for col_nr in range(dimensions[1]):
+                pol = RegularPolygon(side_length=polygon_side_length, number_of_sides=polygon_type,
+                                     first_point=current_pos,
+                                     orientation_angle=current_orientation_angle, clockwise=False)
                 self.tiles_matrix[row_nr].append(Tile(pol))
-                current_pos += Vec2D(side_length, 0)
-            turns_right = not turns_right
-            current_pos = Vec2D(side_length / 2, current_pos[1] + h)
+                current_pos += offsets[0, 0]
+                current_orientation_angle += offsets[0, 1]
+            current_pos = last_row_start_pos + offsets[1, 0]
+            current_orientation_angle = last_row_start_angle + offsets[1, 1]
+
+
+class TrianglePavement(RegularPavement):
+    def __init__(self, polygon_side_length: int, dimensions: (int, int), begin: (Vec2D, float) = (Vec2D(0, 0), 0.0)):
+        sl = polygon_side_length
+        col_offsets = (Vec2D(sl, 0.0), 0.0)
+        triangle_height = (sl ** 2 - (sl / 2) ** 2) ** 0.5
+        row_offsets = (Vec2D(0.5 * sl, triangle_height), math.pi)  # will produce an empty row when trying > 2 rows
+        offsets = (col_offsets, row_offsets)
+
+        super().__init__(polygon_type=3, polygon_side_length=polygon_side_length, dimensions=dimensions,
+                         offsets=offsets)
 
 
 class SquarePavement(Pavement):
