@@ -1,12 +1,12 @@
 import random
-from turtle import Turtle, Pen
+from turtle import Turtle, Pen, Vec2D
 from typing import Callable
 
-from polygon import Polygon
+from polygon import Polygon, RegularPolygon
 from interpolation import *
 
 
-class Artist:
+class Tile:
     def __init__(self, polygon: Polygon):
         self.pen = Pen()
         self.pen.hideturtle()
@@ -88,3 +88,49 @@ class Artist:
         # TODO be able to give a triple interpolation function ([0:1] -> [0:1]^3)
         # Todo be able to parametrise line color independly and realtive to fill color?
         # TODO make interpolation not dependant on n_iter, but on area of polygon? perimeter? radius?
+
+
+class Pavement:
+    def __init__(self, *tiles: Tile):
+        self.tiles = list(tiles)
+        self.depth = 100
+
+    def draw(self, ratio):
+        for tile in self.tiles:
+            tile.draw_spiral(n_iter=self.depth, ratio=ratio, fill_interpolation=gauss_heavy, fill_mode=2,
+                             invert_colors=True)
+
+
+class TrianglePavement(Pavement):
+    def __init__(self, rows: int, columns: int, side_length: int, begin_point=Vec2D(0, 0)):
+        super(TrianglePavement, self).__init__()
+        current_pos = begin_point
+        orientation_angle = 0.0  # start orientation angle stays horizontal looking
+        turns_right = False
+        h = (side_length**2 - (side_length/2)**2)**0.5
+        for row in range(rows):
+            for col in range(columns):
+                pol = RegularPolygon(side_length=side_length, number_of_sides=3, first_point=current_pos,
+                                     orientation_angle=orientation_angle, clockwise=turns_right)
+                self.tiles.append(Tile(pol))
+                current_pos += Vec2D(side_length, 0)
+            turns_right = not turns_right
+            current_pos = Vec2D(side_length/2, current_pos[1]+h)
+
+
+class SquarePavement(Pavement):
+
+    def __init__(self, rows: int, columns: int, side_length: int, begin_point=Vec2D(0, 0)):
+        super(SquarePavement, self).__init__()
+        current_pos = begin_point
+        orientation_angle = 0.0  # start orientation angle stays horizontal looking
+        turns_right = False
+        h = (side_length**2 - (side_length/2)**2)**0.5
+        for row in range(rows):
+            for col in range(columns):
+                pol = RegularPolygon(side_length=side_length, number_of_sides=3, first_point=current_pos,
+                                     orientation_angle=orientation_angle, clockwise=turns_right)
+                self.tiles.append(Tile(pol))
+                current_pos += Vec2D(side_length, 0)
+            turns_right = not turns_right
+            current_pos = Vec2D(side_length/2, current_pos[1]+h)
