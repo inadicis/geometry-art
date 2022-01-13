@@ -91,46 +91,56 @@ class Tile:
 
 
 class Pavement:
-    def __init__(self, *tiles: Tile):
-        self.tiles = list(tiles)
+    def __init__(self):
+        self.tiles_matrix: list[list[Tile]] = []
+        # for i in range(dimensions[0]):
+        #     self.tiles_matrix.append([Tile(Polygon()) for _ in range(dimensions[1])])
+
         self.depth = 100
 
-    def draw(self, ratio):
-        for tile in self.tiles:
-            tile.draw_spiral(n_iter=self.depth, ratio=ratio, fill_interpolation=gauss_heavy, fill_mode=2,
-                             invert_colors=True)
+    def draw(self, ratio: float, inverse_every_row: bool = False, inverse_every_col: bool = False):
+        current_spiral_orientation = False
+        for row_nr, tile_row in enumerate(self.tiles_matrix):
+            for col_nr, tile in enumerate(tile_row):
+                tile.draw_spiral(n_iter=self.depth, ratio=ratio, fill_interpolation=gauss_heavy, fill_mode=2,
+                                 invert_colors=True, mirror=current_spiral_orientation)
+                current_spiral_orientation = not current_spiral_orientation if inverse_every_col else current_spiral_orientation
+            current_spiral_orientation = not current_spiral_orientation if inverse_every_row else current_spiral_orientation
 
+
+# TODO abstraction layer RegularPavement,
+#  with rotation when changing col, rotation when changing row, offset when changing row
+#  and offset when changing col
+#  e.g.: Square: rot_col = 0.0, rot_row = 0.0, offset_col = side_length, offset_row = side_length
+#      Triangle: rot_col = 0.0, rot_row = pi , offset_col = side_length, offset_row = h
 
 class TrianglePavement(Pavement):
-    def __init__(self, rows: int, columns: int, side_length: int, begin_point=Vec2D(0, 0)):
+    def __init__(self, rows: int, columns: int, side_length: int, begin_point: Vec2D = Vec2D(0, 0)):
         super(TrianglePavement, self).__init__()
         current_pos = begin_point
-        orientation_angle = 0.0  # start orientation angle stays horizontal looking
         turns_right = False
-        h = (side_length**2 - (side_length/2)**2)**0.5
-        for row in range(rows):
-            for col in range(columns):
+        h = (side_length ** 2 - (side_length / 2) ** 2) ** 0.5
+        for row_nr in range(rows):
+            self.tiles_matrix.append([])
+            for col_nr in range(columns):
                 pol = RegularPolygon(side_length=side_length, number_of_sides=3, first_point=current_pos,
-                                     orientation_angle=orientation_angle, clockwise=turns_right)
-                self.tiles.append(Tile(pol))
+                                     orientation_angle=0.0, clockwise=turns_right)
+                self.tiles_matrix[row_nr].append(Tile(pol))
                 current_pos += Vec2D(side_length, 0)
             turns_right = not turns_right
-            current_pos = Vec2D(side_length/2, current_pos[1]+h)
+            current_pos = Vec2D(side_length / 2, current_pos[1] + h)
 
 
 class SquarePavement(Pavement):
 
-    def __init__(self, rows: int, columns: int, side_length: int, begin_point=Vec2D(0, 0)):
+    def __init__(self, rows: int, columns: int, side_length: int, begin_point: Vec2D = Vec2D(0, 0)):
         super(SquarePavement, self).__init__()
         current_pos = begin_point
-        orientation_angle = 0.0  # start orientation angle stays horizontal looking
-        turns_right = False
-        h = (side_length**2 - (side_length/2)**2)**0.5
-        for row in range(rows):
-            for col in range(columns):
-                pol = RegularPolygon(side_length=side_length, number_of_sides=3, first_point=current_pos,
-                                     orientation_angle=orientation_angle, clockwise=turns_right)
-                self.tiles.append(Tile(pol))
+        for row_nr in range(rows):
+            self.tiles_matrix.append([])
+            for col_nr in range(columns):
+                pol = RegularPolygon(side_length=side_length, number_of_sides=4, first_point=current_pos,
+                                     orientation_angle=0.0, clockwise=False)
+                self.tiles_matrix[row_nr].append(Tile(pol))
                 current_pos += Vec2D(side_length, 0)
-            turns_right = not turns_right
-            current_pos = Vec2D(side_length/2, current_pos[1]+h)
+            current_pos = Vec2D(0.0, current_pos[1] + side_length)
