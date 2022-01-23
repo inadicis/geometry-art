@@ -42,6 +42,24 @@ class Polygon:
         return lengths
         # return [p.distance(self.points[self.next_point_index(index)]) for index, p in enumerate(self.points)]
 
+    def area(self):
+        pass
+
+    def is_self_intersecting(self):
+        pass
+
+    def is_simple(self):
+        return not self.is_self_intersecting()
+
+    def centroid(self):
+        pass
+
+    def is_star_shaped(self):
+        pass
+
+    # def kernel(self):
+    #     """set of points that fulfill star-shaped attribute. """
+
 
 class RegularPolygon(Polygon):
     def __init__(self,

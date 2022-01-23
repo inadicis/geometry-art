@@ -65,7 +65,7 @@ class Tile:
         for index, polygon in enumerate(subpolygons):
             match fill_mode:
                 case 1:
-                    fill_ratio = index / n_iter
+                    fill_ratio = 1.0 - index / n_iter
                 case 2:
                     # print(f'current_poly: {polygon.side_lengths()}')
                     # print(f'first poly: {self.polygons[ratio][0].side_lengths()}')
@@ -83,11 +83,6 @@ class Tile:
             self.draw_polygon(polygon, fill=bool(fill_mode))
             if index > n_iter:
                 break
-        # fill modi -> think of new ones
-        # TODO fix filling for ratios < 0 or > 1
-        # TODO be able to give a triple interpolation function ([0:1] -> [0:1]^3)
-        # Todo be able to parametrise line color independly and realtive to fill color?
-        # TODO make interpolation not dependant on n_iter, but on area of polygon? perimeter? radius?
 
 
 class Pavement:
@@ -107,17 +102,6 @@ class Pavement:
                 current_spiral_orientation = not current_spiral_orientation if inverse_every_col else current_spiral_orientation
             current_spiral_orientation = not current_spiral_orientation if inverse_every_row else current_spiral_orientation
 
-
-# TODO implement a Polygon "builder", that has no real points, is meant to be the template for any "real" polygon.
-#   could be used instead of giving here a type as int (which restricts our possibilities)
-
-
-# TODO implement irregular /procedural pavements with "wang" tiles?... look in CG2 vorlesung
-
-# TODO change offset structure, to include "rules", like every second column, the offset is positive/negative
-#   e.g. offset_col = [{"type": "angle", "operation": "add/set", "value": X, "modulo": 2}]
-#   or a tile could know an offset to the next one, or event just start position and angle. Not even of next one, of
-#   self would be enough.
 
 class RegularPavement(Pavement):
     def __init__(self, polygon_type: int, polygon_side_length: int,

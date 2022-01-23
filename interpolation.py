@@ -12,12 +12,12 @@ from scipy.stats import norm
 # import numpy as np
 
 
-def _crop(ratio: float, minimum: float = 0.0, maximum: float = 1.0) -> float:
-    if ratio > maximum:
-        return maximum
-    if ratio < minimum:
-        return minimum
-    return ratio
+def _clamp(x: float, lower_limit: float = 0.0, upper_limit: float = 1.0) -> float:
+    if x > upper_limit:
+        return upper_limit
+    if x < lower_limit:
+        return lower_limit
+    return x
 
 
 def zero(ratio: float) -> float:
@@ -25,7 +25,7 @@ def zero(ratio: float) -> float:
 
 
 def _power(exponent: float) -> Callable[[float], float]:
-    return lambda x: _crop(x ** exponent)
+    return lambda x: _clamp(x ** exponent)
 
 
 def identity(ratio: float) -> float:
@@ -41,7 +41,7 @@ def cube(ratio: float) -> float:
 
 
 def sinus(ratio: float) -> float:
-    return _crop(math.sin(2 * ratio / math.pi))
+    return _clamp(math.sin(2 * ratio / math.pi))
 
 
 def _gauss(mean: float = 0.5, sd: float = 0.3) -> Callable[[float], float]:
@@ -62,3 +62,29 @@ def _logistic_curve(midpoint: float = 0.5, steepness: float = 1.0, max_value: fl
 
 def logistic_curve(ratio: float) -> float:
     return _logistic_curve(0.5, 5.0, 1.0)(ratio)
+
+
+def smooth_step(ratio: float, edge_1: float = 0.0, edge_2: float = 1.0) -> float:
+    x = _clamp((ratio - edge_1) / (edge_2 - edge_1))
+    return x * x * (3 - 2 * x)
+
+
+def smoother_step(ratio: float, edge_1: float = 0.0, edge_2: float = 1.0) -> float:
+    x = _clamp((ratio - edge_1) / (edge_2 - edge_1))
+    return x * x * x * (x * (x * 6 - 15) + 10)
+
+
+def general_smooth_step(N, x):
+    x = _clamp(x, 0.0, 1.0)
+    result = 0
+
+    for i in range(N):
+        result += pascal_triangle(-N - 1, i) * pascal_triangle(2 * N + 1, N - i) * math.pow(x, N + i + 1)
+    return result
+
+
+def pascal_triangle(a, b):
+    result = 1
+    for i in range(b):
+        result *= (a - i) / (i + 1)
+    return result
