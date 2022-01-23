@@ -22,7 +22,7 @@ multiple interpolation, shading modes etc.
 ## Some visuals examples
 
 ### Octogon-rings with only line-color
-<img src="https://user-images.githubusercontent.com/49560513/150682942-bf6a987e-5a66-41e6-89a0-0173a2a636b8.png" alt="octogons" width="250" height="250">
+<img src="https://user-images.githubusercontent.com/49560513/150682942-bf6a987e-5a66-41e6-89a0-0173a2a636b8.png" alt="octogons" width="500">
 
 ### Filled-Triangle with only line-color
 ![grafik](https://user-images.githubusercontent.com/49560513/150682948-532bdbb3-369d-48ca-b737-eea7f16e9735.png)
