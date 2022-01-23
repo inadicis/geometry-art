@@ -25,10 +25,10 @@ multiple interpolation, shading modes etc.
 <img src="https://user-images.githubusercontent.com/49560513/150682942-bf6a987e-5a66-41e6-89a0-0173a2a636b8.png" alt="octogons" width="500">
 
 ### Filled-Triangle with only line-color
-![grafik](https://user-images.githubusercontent.com/49560513/150682948-532bdbb3-369d-48ca-b737-eea7f16e9735.png)
+<img src="https://user-images.githubusercontent.com/49560513/150682948-532bdbb3-369d-48ca-b737-eea7f16e9735.png" alt="simple triangle" width="500">
 
 ### Pavement of 4 Square-Tiles, with alterning directions
-![grafik](https://user-images.githubusercontent.com/49560513/150682956-52abddb7-8157-4f60-beba-77ec3366ee8e.png)
+<img src="https://user-images.githubusercontent.com/49560513/150682956-52abddb7-8157-4f60-beba-77ec3366ee8e.png" alt="4 squares" width="500">
 
 ### Pavement of 6 Triangle-Tiles, with fill-color
-![grafik](https://user-images.githubusercontent.com/49560513/150682959-dd3061e9-aca6-4408-9d36-d561a868a644.png)
+<img src="https://user-images.githubusercontent.com/49560513/150682959-dd3061e9-aca6-4408-9d36-d561a868a644.png" alt="6 triangles" width="500">
