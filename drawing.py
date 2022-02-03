@@ -91,13 +91,13 @@ class Pavement:
         # for i in range(dimensions[0]):
         #     self.tiles_matrix.append([Tile(Polygon()) for _ in range(dimensions[1])])
 
-        self.depth = 100
+        self.depth = 200
 
     def draw(self, ratio: float, inverse_every_row: bool = False, inverse_every_col: bool = False):
         current_spiral_orientation = False
         for row_nr, tile_row in enumerate(self.tiles_matrix):
             for col_nr, tile in enumerate(tile_row):
-                tile.draw_spiral(n_iter=self.depth, ratio=ratio, fill_interpolation=gauss_heavy, fill_mode=2,
+                tile.draw_spiral(n_iter=self.depth, ratio=ratio, fill_interpolation=logistic_curve, fill_mode=2,
                                  invert_colors=True, mirror=current_spiral_orientation)
                 current_spiral_orientation = not current_spiral_orientation if inverse_every_col else current_spiral_orientation
             current_spiral_orientation = not current_spiral_orientation if inverse_every_row else current_spiral_orientation
@@ -137,16 +137,48 @@ class RegularPavement(Pavement):
             current_orientation_angle = last_row_start_angle + offsets[1, 1]
 
 
-class TrianglePavement(RegularPavement):
-    def __init__(self, polygon_side_length: int, dimensions: (int, int), begin: (Vec2D, float) = (Vec2D(0, 0), 0.0)):
+class TrianglePavement(Pavement):
+    def __init__(self, polygon_side_length: int, matrix_dimensions: (int, int),
+                 begin_state: (Vec2D, float) = (Vec2D(0, 0), 0.0), alternate_spirals=False):
+        super(TrianglePavement, self).__init__()
+        current_pos, current_heading = begin_state
         sl = polygon_side_length
-        col_offsets = (Vec2D(sl, 0.0), 0.0)
         triangle_height = (sl ** 2 - (sl / 2) ** 2) ** 0.5
-        row_offsets = (Vec2D(0.5 * sl, triangle_height), math.pi)  # will produce an empty row when trying > 2 rows
-        offsets = (col_offsets, row_offsets)
 
-        super().__init__(polygon_type=3, polygon_side_length=polygon_side_length, dimensions=dimensions,
-                         offsets=offsets)
+        for row_nr in range(matrix_dimensions[0]):
+            self.tiles_matrix.append([])
+            # set good state for begin of this row
+            inverted = row_nr % 2 == 1
+            if inverted:
+                current_pos += Vec2D(sl / 2, triangle_height)
+            # else:
+            #     current_pos += Vec2D(sl / 2, 0)
+            # save begin state
+            current_row_start_pos = current_pos
+            current_row_start_heading = current_heading
+            # build row
+            for col_nr in range(matrix_dimensions[1]):
+                pol = RegularPolygon(side_length=polygon_side_length, number_of_sides=3, first_point=current_pos,
+                                     orientation_angle=current_heading, clockwise=inverted)
+                current_pos += Vec2D(sl, 0)
+                # current_heading = current_row_start_heading
+                self.tiles_matrix[row_nr].append(Tile(pol))
+
+            # reset to begin state before going to next row
+            current_pos = current_row_start_pos
+            current_heading = current_row_start_heading
+
+
+# class TrianglePavement(RegularPavement):
+#     def __init__(self, polygon_side_length: int, dimensions: (int, int), begin: (Vec2D, float) = (Vec2D(0, 0), 0.0)):
+#         sl = polygon_side_length
+#         col_offsets = (Vec2D(sl, 0.0), 0.0)
+#         triangle_height = (sl ** 2 - (sl / 2) ** 2) ** 0.5
+#         row_offsets = (Vec2D(0.5 * sl, triangle_height), math.pi)  # will produce an empty row when trying > 2 rows
+#         offsets = (col_offsets, row_offsets)
+#
+#         super().__init__(polygon_type=3, polygon_side_length=polygon_side_length, dimensions=dimensions,
+#                          offsets=offsets)
 
 
 class SquarePavement(Pavement):

@@ -2,21 +2,51 @@ import turtle
 from turtle import Vec2D
 import math
 
-
 # class Point(Vec2D):
 #     def distance(self, other_point):
 #         vec = (other_point - self)
 #         return (vec[0] ** 2 + vec[1] ** 2) ** 0.5
+from typing import List, Tuple
 
 
 def linear_interpolation(a, b, ratio: float):
     return a * ratio + b * (1 - ratio)
 
 
+class PolygonBuilder:
+
+    def __init__(self):
+        self.vectors_sequence: List[Vec2D] = []  # from first point, "go-to" instructions
+        self.instructions_sequence: List[Tuple[float, float]] = []  # length, rotation angle
+        self.vectors_star: List[Vec2D]  # position of all points relative to an arbitrarly chosen one
+        self.instructions_star: List[Tuple[float, float]] = []  # length, rotation angle
+
+
 class Polygon:
 
     def __init__(self, *points: Vec2D):
-        self.points: list[Vec2D] = [p for p in points]
+        self.points: list[Vec2D] = list(points)
+
+    def __eq__(self, other: 'Polygon'):
+        """
+        Checks that every point are in the same order in both polygons.
+        :param other: Polygon
+        :return: bool
+        """
+        # return len(self.points) == len(other.points) and all([p in other.points for p in self.points])
+        if len(self.points) != len(other.points):
+            return False
+        try:
+            current_other_index = other.points.index(self.points[0])
+        except ValueError:
+            return False
+        for p in self.points:
+            if other.points[current_other_index] != p:
+                return False
+            current_other_index = other.next_point_index(current_other_index)
+
+    def __reversed__(self):
+        return Polygon(*list(reversed(self.points)))
 
     def add_points(self, *points: Vec2D):
         for point in points:
@@ -42,6 +72,9 @@ class Polygon:
         return lengths
         # return [p.distance(self.points[self.next_point_index(index)]) for index, p in enumerate(self.points)]
 
+    def reverse_direction(self):
+        self.points = self.points[::-1]
+
     def area(self):
         pass
 
@@ -55,6 +88,9 @@ class Polygon:
         pass
 
     def is_star_shaped(self):
+        pass
+
+    def adjacent_polygons(self):
         pass
 
     # def kernel(self):
